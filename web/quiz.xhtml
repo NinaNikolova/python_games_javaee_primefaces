@@ -1,0 +1,173 @@
+<?xml version='1.0' encoding='UTF-8' ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
+      xmlns:h="http://xmlns.jcp.org/jsf/html"
+      xmlns:p="http://primefaces.org/ui"
+      xmlns:f="http://xmlns.jcp.org/jsf/core"
+      >
+
+    <h:head>
+        <f:loadBundle basename="messages" var="msg" />
+        <title>Python Quiz Game</title>
+        <style>
+            .quiz-container {
+                max-width: 800px;
+                margin: 40px auto;
+                padding: 20px;
+                background-color: #fff;
+                border-radius: 10px;
+                box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            }
+
+            .header {
+                text-align: center;
+                margin-bottom: 30px;
+            }
+
+            .header h1 {
+                font-size: 2.5em;
+                color: #2c3e50;
+                margin-bottom: 10px;
+            }
+
+            .header p {
+                font-size: 1.2em;
+                color: #7f8c8d;
+            }
+
+            .quiz-panel {
+                background-color: #ecf0f1;
+                border: none;
+                border-radius: 8px;
+                padding: 20px;
+            }
+
+            .quiz-grid, .gameover-grid {
+                display: flex;
+                flex-direction: column;
+                gap: 15px;
+            }
+
+            .score-label {
+                font-size: 1.4em;
+                font-weight: bold;
+                color: #2c3e50;
+            }
+
+            .question-label {
+                font-size: 1.2em;
+                color: #34495e;
+            }
+
+            .answer-menu {
+                width: 100%;
+                max-width: 400px;
+                padding: 10px;
+                font-size: 1em;
+                border-radius: 5px;
+                background-color: #fff;
+                border: 1px solid #bdc3c7;
+                transition: border-color 0.3s;
+            }
+
+            .answer-menu:hover {
+                border-color: #3498db;
+            }
+
+            .submit-button, .restart-button {
+                padding: 10px 20px;
+                font-size: 1em;
+                border-radius: 5px;
+                background-color: #3498db;
+                color: #fff;
+                border: none;
+                cursor: pointer;
+                transition: background-color 0.3s;
+            }
+
+            .submit-button:hover, .restart-button:hover {
+                background-color: #2980b9;
+            }
+
+            .submit-button .pi, .restart-button .pi {
+                margin-right: 8px;
+            }
+
+            .feedback-label {
+                font-size: 1.1em;
+                margin-top: 10px;
+            }
+
+            .gameover-label {
+                font-size: 1.5em;
+                font-weight: bold;
+                color: #e74c3c;
+                text-align: center;
+            }
+
+            /* Responsive Design */
+            @media (max-width: 600px) {
+                .quiz-container {
+                    margin: 20px;
+                    padding: 15px;
+                }
+
+                .header h1 {
+                    font-size: 2em;
+                }
+
+                .header p {
+                    font-size: 1em;
+                }
+
+                .answer-menu {
+                    max-width: 100%;
+                }
+            }
+            
+        </style>
+    </h:head>
+    <h:body>
+        <ui:composition template="./template.xhtml">
+            <ui:define name="title">#{msg['quiz.panel.header']}</ui:define>
+
+            <ui:define name="box">
+                <div class="quiz-container">
+                    <div class="header">
+                        <h1>#{msg['quiz.panel.header']}</h1>
+                        <p>#{msg['quiz.description']}</p>
+                    </div>
+
+                    <h:form>
+                        <p:remoteCommand name="nextQuestion" action="#{quizBean.nextQuestion}" update="@form" />
+                        <p:panel header="#{msg['quiz.panel.header']}" style="margin: 20px;">
+                            <h:panelGrid columns="1" rendered="#{!quizBean.gameOver}">
+                                <p:outputLabel value="#{msg['quiz.score']} #{quizBean.score}" style="font-weight: bold;"/>
+                                <p:outputLabel value="#{msg['quiz.question']} #{quizBean.currentQuestionIndex + 1}/#{quizBean.totalQuestions}: #{quizBean.currentQuestion.text}"/>
+                                <p:selectOneMenu value="#{quizBean.selectedAnswer}" style="width: 300px;">
+                                    <f:selectItems value="#{quizBean.currentQuestion.options}"/>
+                                </p:selectOneMenu>
+                               <p:commandButton value="#{msg['quiz.submit']}"
+                 action="#{quizBean.submitAnswer}"
+                 update="@form"
+                 icon="pi pi-check"
+                 oncomplete="setTimeout(function() { nextQuestion(); }, 1000);" />
+                                <p:outputLabel value="#{quizBean.feedback}" 
+                                               styleClass="feedback-label" 
+                                               style="color: #{quizBean.feedback.contains('Correct') ? 'green' : 'red'};"
+                                               rendered="#{not empty quizBean.feedback}"/>
+                            </h:panelGrid>
+                            <h:panelGrid columns="1" rendered="#{quizBean.gameOver}">
+                                <p:outputLabel value="#{msg['quiz.gameover']} #{quizBean.score}" style="font-weight: bold;"/>
+                                <p:commandButton value="#{msg['quiz.restart']}" action="#{quizBean.restartGame}" update="@form" icon="pi pi-refresh"  />
+                            </h:panelGrid>
+                        </p:panel>
+                    </h:form>
+                </div>
+            </ui:define>
+        </ui:composition>
+    </h:body>
+</html>
+
+

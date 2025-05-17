@@ -1,0 +1,628 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
+      xmlns:h="http://xmlns.jcp.org/jsf/html"
+      xmlns:p="http://primefaces.org/ui"
+      xmlns:f="http://xmlns.jcp.org/jsf/core">
+    <f:view locale="#{languageBean.localeCode}">
+        <h:head>
+            <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+            <link rel="icon" type="image/svg+xml" href="./python.png" />
+
+            <h:outputStylesheet name="primeicons/primeicons.css" library="primefaces" />
+            <title><ui:insert name="title">#{msg['app.title']}</ui:insert></title>
+            <style>
+                * {
+                    box-sizing: border-box;
+                }
+
+                body {
+                    margin: 0;
+                    padding: 0;
+                    font-family: Arial, sans-serif;
+                    padding-top: 40px; /* space for fixed navbar */
+                    padding-bottom: 70px; /* space for fixed footer */
+                    text-align: center;
+                }
+
+                .navbar-fixed {
+                    position: fixed;
+                    top: 0;
+                    width: 100%;
+                    z-index: 1000;
+
+                }
+
+                .footer-fixed {
+                    position: fixed;
+                    bottom: 0;
+                    width: 100%;
+                    background-color: #f4f4f4;
+                    border-top: 1px solid #ccc;
+                    text-align: center;
+                    padding: 12px 10px;
+                    box-shadow: 0 -1px 5px rgba(0,0,0,0.1);
+                    font-size: 14px;
+                    z-index: 1000;               
+                }
+
+                #mainContainer {
+                    padding: 20px;
+                    max-width: 1000px;
+                    margin: 0 auto;
+                }
+
+                img {
+                    max-width: 100%;
+                    height: auto;
+                }
+                .language-selector {
+                    position: absolute;
+                    right: 20px;
+                    top: 10px;
+                    z-index: 1001;
+                }
+
+                @media (max-width: 768px) {
+                    .footer-fixed {
+                        font-size: 13px;
+                        padding: 10px;
+
+                    }
+
+                    #mainContainer {
+                        padding: 10px;
+                    }
+                    .language-selector {
+                        right:10px;
+                        top: 50px;
+                    }
+                }
+
+
+                .hangman-container {
+                    max-width: 600px;
+                    margin: 0 auto;
+                }
+
+                .header {
+                    text-align: center;
+                    margin: 20px;
+                    color: #2c3e50;
+                }
+
+                .card-grid {
+                    display: grid;
+                    grid-template-columns: repeat(4, 1fr);
+                    gap: 10px;
+                    margin-bottom: 20px;
+                }
+
+                .game-card {
+                    aspect-ratio: 3/4;
+                    height: auto;
+                    cursor: pointer;
+                    perspective: 1000px;
+
+                }
+
+                .game-card .ui-button {
+                    width: 100%;
+                    height: 100%;
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    font-size: 0.9rem;
+                    text-align: center;
+                    border-radius: 8px;
+                    transition: transform 0.3s;
+                    transform-style: preserve-3d;
+                }
+
+                .card-front, .card-back {
+                    position: absolute;
+                    width: 100%;
+                    height: 100%;
+                    backface-visibility: hidden;
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    border-radius: 8px;
+                    padding: 5px;
+                }
+
+                .card-front {
+                    background-color: #3498db;
+                    color: white;
+                    transform: rotateY(180deg);
+                }
+
+                .card-back {
+                    background-color: #2c3e50;
+                    color: white;
+                }
+
+                .flipped .ui-button {
+                    transform: rotateY(180deg);
+                }
+
+                .matched .card-front {
+                    background-color: #27ae60;
+                }
+
+                .game-stats {
+                    display: flex;
+                    justify-content: space-between;
+                    margin-bottom: 15px;
+                    font-size: 1.2rem;
+                }
+
+                .difficulty-selector {
+                    margin-bottom: 15px;
+                }
+                .mobile-menu {
+                    display: none;
+                }
+
+
+                .logo {
+                    top: 40px;
+                    left: 60px;
+                    width: 160px;
+                    padding: 15px;
+                    background-color: #4B8BBE; /* Python blue */
+                    color: white;
+                    text-align: center;
+                    font-weight: bold;
+                    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+                    border-bottom-right-radius: 10px;
+                    z-index: 1000;
+                }
+
+                .logo-text {
+                    font-size: 20px;
+                    margin-bottom: 5px;
+                }
+
+                .logo-tagline {
+                    font-size: 12px;
+                    font-style: italic;
+                    opacity: 0.9;
+                }
+
+                .python-icon {
+                    font-size: 28px;
+                    margin-right: 5px;
+                    vertical-align: middle;
+                }
+
+                /* Python icon styling */
+                .py-icon {
+                    display: inline-block;
+                    position: relative;
+                    width: 30px;
+                    height: 30px;
+                    margin-right: 8px;
+                    vertical-align: middle;
+                }
+
+                .py-blue {
+                    position: absolute;
+                    top: 0;
+                    left: 0;
+                    width: 15px;
+                    height: 30px;
+                    background-color: #366994;
+                    border-radius: 5px 0 0 5px;
+                }
+
+                .py-yellow {
+                    position: absolute;
+                    top: 0;
+                    right: 0;
+                    width: 15px;
+                    height: 30px;
+                    background-color: #FFD43B;
+                    border-radius: 0 5px 5px 0;
+                }
+                .game-container {
+                    max-width: 500px;
+                    margin: 0 auto;
+                    padding: 10px;
+                }
+
+                .hangman-display {
+                    height: 200px;
+                    position: relative;
+                    margin: 20px auto;
+                    display: flex;
+                    justify-content: center;
+                    align-items: center;
+                }
+
+                .hangman-face {
+                    width: 100px;
+                    height: 100px;
+                    border-radius: 50%;
+                    background-color: #FFDE7D;
+                    border: 3px solid #333;
+                    position: relative;
+                    z-index: 2;
+                }
+
+                .word-display {
+                    display: flex;
+                    gap: 10px; /* Space between letter boxes */
+                }
+
+                .letter-box {
+                    width: 30px; /* Fixed width for each letter/underscore */
+                    text-align: center;
+                    font-size: 24px;
+                    font-family: monospace; /* Ensures consistent character width */
+                    border-bottom: 2px solid black; /* Optional: underline effect */
+                }
+
+                .keyboard {
+                    display: flex;
+                    flex-wrap: wrap;
+                    justify-content: center;
+                    gap: 6px;
+                    margin: 20px 0;
+                }
+
+                .key-button {
+                    width: 42px !important;
+                    height: 42px !important;
+                    font-weight: bold !important;
+                    font-size: 16px !important;
+                    margin: 2px !important;
+                }
+
+                .guessed-correct {
+                    background-color: #a5d6a7 !important;
+                    color: #1b5e20 !important;
+                    border-color: #1b5e20 !important;
+                }
+
+                .guessed-wrong {
+                    background-color: #ef9a9a !important;
+                    color: #b71c1c !important;
+                    border-color: #b71c1c !important;
+                }
+
+                .status-panel {
+                    text-align: center;
+                    margin: 15px 0;
+                }
+
+                .title-bar {
+                    text-align: center;
+                    margin: 10px 0;
+                }
+
+                .score-display {
+                    display: flex;
+                    justify-content: space-around;
+                }
+
+                /* Hangman face parts */
+                .eye-left, .eye-right {
+                    position: absolute;
+                    width: 15px;
+                    height: 15px;
+                    background-color: #333;
+                    border-radius: 50%;
+                    top: 30px;
+                }
+
+                .eye-left {
+                    left: 25px;
+                }
+
+                .eye-right {
+                    right: 25px;
+                }
+
+                .mouth {
+                    position: absolute;
+                    width: 40px;
+                    height: 15px;
+                    bottom: 25px;
+                    left: 30px;
+                    border-radius: 0 0 20px 20px;
+                    background-color: #333;
+                }
+
+                .mouth.sad {
+                    border-radius: 20px 20px 0 0;
+                }
+
+                /* Hangman structure parts */
+                .hangman-post {
+                    position: absolute;
+                    width: 10px;
+                    height: 150px;
+                    background-color: #5D4037;
+                    bottom: 0;
+                    z-index: 1;
+                }
+
+                .hangman-beam {
+                    position: absolute;
+                    width: 100px;
+                    height: 10px;
+                    background-color: #5D4037;
+                    top: 0;
+                    z-index: 1;
+                }
+
+                .hangman-rope {
+                    position: absolute;
+                    width: 5px;
+                    height: 25px;
+                    background-color: #8D6E63;
+                    top: 10px;
+                    z-index: 1;
+                }
+
+                .hangman-body {
+                    position: absolute;
+                    width: 5px;
+                    height: 50px;
+                    background-color: #5D4037;
+                    top: 10px;
+                    z-index: 1;
+                }
+
+                .hangman-arm {
+                    position: absolute;
+                    width: 40px;
+                    height: 5px;
+                    background-color: #5D4037;
+                    top: 150px;
+                    z-index: 1;
+                }
+
+                .hangman-arm.left {
+                    transform: rotate(45deg);
+                    left: 260px;
+                }
+
+                .hangman-arm.right {
+                    transform: rotate(-45deg);
+                    right: 260px;
+                }
+
+                .hangman-leg {
+                    position: absolute;
+                    width: 40px;
+                    height: 5px;
+                    background-color: #5D4037;
+                    top: 210px;
+                    z-index: 1;
+                }
+
+                .hangman-leg.left {
+                    transform: rotate(-45deg);
+                    left: 260px;
+                }
+
+                .hangman-leg.right {
+                    transform: rotate(45deg);
+                    right: 260px;
+                }
+
+                /* Mobile optimizations */
+                @media (max-width: 480px) {
+                    .key-button {
+                        width: 34px !important;
+                        height: 34px !important;
+                        font-size: 14px !important;
+                        padding: 0 !important;
+                    }
+
+                    .letter-box {
+                        width: 28px;
+                        height: 40px;
+                        font-size: 20px;
+                    }
+
+                    .hangman-display {
+                        height: 200px;
+
+                    }
+
+                    .hangman-face {
+                        width: 80px;
+                        height: 80px;
+                    }
+
+                    .eye-left {
+                        left: 20px;
+                        width: 12px;
+                        height: 12px;
+                    }
+
+                    .eye-right {
+                        right: 20px;
+                        width: 12px;
+                        height: 12px;
+                    }
+
+                    .mouth {
+                        width: 30px;
+                        height: 12px;
+                        left: 25px;
+                        bottom: 20px;
+                    }
+                    .hangman-arm.left {
+
+                        left: 110px;
+                    }
+
+                    .hangman-arm.right {
+
+                        right: 110px;
+                    }
+                    .hangman-leg.left {
+
+                        left: 110px;
+                    }
+
+                    .hangman-leg.right {
+
+                        right: 110px;
+                    }
+                }
+
+                /* Game result messages */
+                .win-message {
+                    color: #2E7D32;
+                    font-size: 24px;
+                    font-weight: bold;
+                    text-align: center;
+                }
+
+                .lose-message {
+                    color: #C62828;
+                    font-size: 24px;
+                    font-weight: bold;
+                    text-align: center;
+                }
+                /* Tower game */
+                .tower-container {
+                    width: 100%;
+                    height: 500px;
+                    position: relative;
+                    border: 1px solid #ccc;
+                    background-color: #f5f5f5;
+                }
+
+                .tower-floor {
+                    position: absolute;
+                    width: 80%;
+                    left: 10%;
+                    height: 40px;
+                    background-color: #8B4513;
+                    border-radius: 3px;
+                    text-align: center;
+                    color: white;
+                    line-height: 40px;
+                    transition: bottom 1s ease-out;
+                }
+
+                .question-card {
+                    margin: 20px 0;
+                    padding: 20px;
+                    border-radius: 5px;
+                }
+
+                .game-header {
+                    display: flex;
+                    justify-content: space-between;
+                    align-items: center;
+                    margin-bottom: 20px;
+                }
+
+                .answer-option {
+                    margin: 5px 0;
+                }
+
+                .player-info {
+                    text-align: right;
+                }
+                @media (max-width: 600px) {
+                    .card-grid {
+                        grid-template-columns: repeat(3, 1fr);
+                        gap: 8px;
+                    }
+
+                    .game-card .ui-button {
+                        font-size: 0.8rem;
+                    }
+
+                    .game-stats {
+                        font-size: 1rem;
+                    }
+
+                    .card-grid {
+                        display: grid;
+                        grid-template-columns: repeat(2, 1fr);
+                    }
+                    .menu {
+                        display: none;
+                        flex-direction: column;
+                    }
+
+                    .mobile-menu {
+                        display: inline-block !important;
+                        position: fixed;
+                        right: 10px;
+                    }
+                    .logo {  
+                        position: fixed;
+                        top: 0px;
+                        left: 0px;
+                    }
+                    body{
+                        margin-top: 50px;
+                    }
+
+
+
+                }   
+
+            </style>
+        </h:head>
+        <f:loadBundle basename="messages" var="msg" />
+        <body>
+            <h:form>
+                <div class="navbar-fixed">
+                    <p:menubar class="menu">
+                        <p:menuitem value="#{msg['app.menu.greeting']}" outcome="greeting" icon="pi pi-bell" />
+                        <p:menuitem value="#{msg['app.menu.memory']}" outcome="memory" icon="pi pi-user" />
+                        <p:menuitem value="#{msg['quiz.panel.header']}" outcome="quiz" icon="pi pi-question-circle" />
+                        <p:menuitem value="#{msg['hangman.page.title']}" outcome="hangman" icon="pi pi-user" />
+                        <p:menuitem value="#{msg['tower.page.title']}" outcome="tower" icon="pi pi-bell" />
+                    </p:menubar>
+                    <p:menu  overlay="true" collision="flipfit" maxHeight="90vh"
+                             trigger="btn" my="left top" at="bottom left">
+                        <p:menuitem value="#{msg['app.menu.greeting']}" outcome="greeting" icon="pi pi-bell" />
+                        <p:menuitem value="#{msg['app.menu.memory']}" outcome="memory" icon="pi pi-user" />
+                        <p:menuitem value="#{msg['quiz.panel.header']}" outcome="quiz" icon="pi pi-question-circle" />
+                        <p:menuitem value="#{msg['hangman.page.title']}" outcome="hangman" icon="pi pi-user" />
+                        <p:menuitem value="#{msg['tower.page.title']}" outcome="tower" icon="pi pi-bell" />
+                    </p:menu>
+                    <p:commandButton id="btn" class="mobile-menu"  value="☰ Menu" type="button"/>
+
+                </div>
+
+                <div class="language-selector">
+                    <h:selectOneMenu value="#{languageBean.localeCode}" onchange="submit()" valueChangeListener="#{languageBean.changeLanguage}">
+                        <f:selectItems value="#{languageBean.countries}" />
+                    </h:selectOneMenu>
+                </div>
+                <div class="logo">
+                    <div class="logo-text">
+                        <span class="py-icon">
+                            <span class="py-blue"></span>
+                            <span class="py-yellow"></span>
+                        </span>
+                        PlayWithPy
+                    </div>     
+                </div>
+            </h:form>
+            <div id="mainContainer">
+
+                <div>
+                    <ui:insert name="box">Box Content Here</ui:insert>
+                </div>
+
+            </div>
+            <div class="footer-fixed">
+                #{msg['app.footer.copyright']}  <p:clock pattern="HH:mm:ss dd.MM.yyyy" />  
+            </div>
+        </body>
+    </f:view>
+</html>

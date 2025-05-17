@@ -1,0 +1,155 @@
+<?xml version='1.0' encoding='UTF-8' ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
+      xmlns:h="http://xmlns.jcp.org/jsf/html"
+      xmlns:p="http://primefaces.org/ui"
+      xmlns:f="http://xmlns.jcp.org/jsf/core">
+
+    <h:head>
+        <f:loadBundle basename="messages" var="msg" />
+        <title>#{msg['tower.page.title']}</title>
+        <h:outputStylesheet>
+            .game-header {
+                text-align: center;
+                margin-bottom: 20px;
+            }
+            .player-info {
+                margin: 10px 0;
+                padding: 10px;
+                background-color: #f8f9fa;
+                border-radius: 5px;
+            }
+            .question-card {
+                margin-bottom: 20px;
+            }
+            .tower-container {
+                position: relative;
+                height: 500px;
+                margin: 20px auto;
+                width: 250px;
+                background-color: #f0f0f0;
+            }
+            .tower-floor {
+                position: absolute;
+                width: 200px;
+                height: 40px;
+                background-color: #4CAF50;
+                color: white;
+                text-align: center;
+                padding: 5px;
+                line-height: 30px;
+                border-radius: 5px;
+                left: 25px;
+            }
+        </h:outputStylesheet>
+    </h:head>
+    <h:body>
+        <ui:composition template="./template.xhtml">
+            <ui:define name="title">#{msg['tower.page.title']}</ui:define>
+
+            <ui:define name="box">
+                <!-- Global messages -->
+                <p:growl id="globalMessages" showDetail="true" />
+
+                <div class="game-header">
+                
+                     <div class="player-info">
+                        <p:outputPanel id="playerInfoPanel" rendered="#{gameBean.gameInProgress}">
+                            <h:outputText value="#{msg['tower.player.label']}" style="font-weight: bold" />
+                            <h:outputText value="#{gameBean.playerName}" />
+                            <br/>
+                            <h:outputText value="#{msg['tower.score.label']}" style="font-weight: bold" />
+                            <h:outputText value="#{gameBean.score}" />
+                            <br/>
+                            <h:outputText value="#{msg['tower.floor.label']}" style="font-weight: bold" />
+                            <h:outputText value="#{gameBean.currentFloor}/#{gameBean.maxFloors}" />
+                        </p:outputPanel>
+                    </div>
+                </div>
+
+                <!-- Main content container -->
+                <p:outputPanel id="mainContent">
+                    <!-- Welcome Screen -->
+                    <p:panel id="welcomePanel" rendered="#{!gameBean.gameInProgress and !gameBean.gameOver}" styleClass="question-card">
+                         <h2>#{msg['tower.welcome.header']}</h2>
+                        <p>#{msg['tower.welcome.message']}</p>
+
+                           <h:form id="welcomeForm" prependId="false">
+                            <p:panelGrid columns="2">
+                                <p:outputLabel for="playerName" value="#{msg['tower.player.name.label']}" />
+                                <p:inputText id="playerName" value="#{gameBean.playerName}" required="true" />
+
+                                <p:outputLabel for="difficulty" value="#{msg['tower.difficulty.label']}" />
+                                <p:selectOneMenu id="difficulty" value="#{gameBean.difficulty}">
+                                    <f:selectItem itemLabel="#{msg['tower.difficulty.easy']}" itemValue="EASY" />
+                                    <f:selectItem itemLabel="#{msg['tower.difficulty.medium']}" itemValue="MEDIUM" />
+                                    <f:selectItem itemLabel="#{msg['tower.difficulty.hard']}" itemValue="HARD" />
+                                </p:selectOneMenu>
+
+                                <p:outputLabel for="maxFloors" value="#{msg['tower.height.label']}" />
+                                <p:spinner id="maxFloors" value="#{gameBean.maxFloors}" min="5" max="20" />
+                            </p:panelGrid>
+
+                            <p:commandButton value="#{msg['tower.start.button']}" action="#{gameBean.startGame}" 
+                                             update=":globalMessages :mainContent :towerPanel" 
+                                             style="margin-top: 10px;" />
+                        </h:form>
+                    </p:panel>
+
+                    <!-- Game Panel -->
+                    <p:panel id="gamePanel" rendered="#{gameBean.gameInProgress}" styleClass="question-card">
+                        <h:form id="gameForm" prependId="false">
+                            <p:panel header="#{msg['tower.question.header']} #{gameBean.currentFloor}">
+                                <h3>#{gameBean.currentQuestion.text}</h3>
+
+                                <p:selectOneRadio id="answer" value="#{gameBean.selectedAnswer}" layout="responsive" columns="1">
+                                    <f:selectItems value="#{gameBean.currentQuestion.options}" var="option" 
+                                                   itemLabel="#{option}" itemValue="#{option}" />
+                                </p:selectOneRadio>
+
+                                <div style="margin-top: 20px;">
+                                    <p:commandButton value="#{msg['tower.submit.button']}" action="#{gameBean.submitAnswer}" 
+                                                     update=":globalMessages :mainContent :towerPanel" />
+                                </div>
+                            </p:panel>
+                        </h:form>
+                    </p:panel>
+
+
+                    <!-- Game Over Panel -->
+                    <p:panel id="gameOverPanel" rendered="#{gameBean.gameOver}" styleClass="question-card">
+                        <h2>#{msg['tower.gameover.header']}</h2>
+                        <p:panelGrid columns="2">
+                            <h:outputText value="#{msg['tower.player.label']}" style="font-weight: bold" />
+                            <h:outputText value="#{gameBean.playerName}" />
+
+                            <h:outputText value="#{msg['tower.final.score.label']}" style="font-weight: bold" />
+                            <h:outputText value="#{gameBean.score}" />
+
+                            <h:outputText value="#{msg['tower.final.height.label']}" style="font-weight: bold" />
+                            <h:outputText value="#{gameBean.currentFloor - 1} #{msg['tower.floors.label']}" />
+                        </p:panelGrid>
+
+                        <h:form id="restartForm" prependId="false">
+                            <p:commandButton value="#{msg['tower.play.again.button']}" action="#{gameBean.restart}" 
+                                             update=":globalMessages :mainContent :towerPanel" 
+                                             style="margin-top: 10px;" />
+                        </h:form>
+                    </p:panel>
+                </p:outputPanel>
+
+                <!-- Tower Visualization -->
+                <p:panel id="towerPanel" header="#{msg['tower.panel.header']}" styleClass="question-card">
+                    <div class="tower-container">
+                        <ui:repeat value="#{gameBean.builtFloors}" var="floor">
+                            <div class="tower-floor" style="bottom: #{(floor - 1) * 50}px;">
+                                #{msg['tower.floor.label']} #{floor}
+                            </div>
+                        </ui:repeat>
+                    </div>
+                </p:panel>
+            </ui:define>
+        </ui:composition>
+    </h:body>
+</html>

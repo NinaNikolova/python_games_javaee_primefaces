@@ -1,0 +1,98 @@
+<?xml version='1.0' encoding='UTF-8' ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
+      xmlns:h="http://xmlns.jcp.org/jsf/html"
+      xmlns:p="http://primefaces.org/ui">
+    <body>
+        <ui:composition template="./template.xhtml">
+            <ui:define name="title">Game</ui:define>
+
+            <ui:define name="content">
+                <div class="game-container">
+
+                    <div class="game-header">
+                        <div class="game-progress">
+                            <p:progressBar value="#{(gameBean.currentIndex + 1) * 100 / gameBean.totalChallenges}" 
+                                           displayOnly="true" styleClass="game-progress-bar" />
+                            <span class="progress-text">
+                                #{msg.progress}: #{gameBean.currentIndex + 1} #{msg.outOf} #{gameBean.totalChallenges}
+                            </span>
+                        </div>
+                        <div class="game-score">
+                            <span class="score-label">#{msg.score}: </span>
+                            <span class="score-value">#{gameBean.score}</span>
+                        </div>
+                    </div>
+
+                    <h:form id="gameForm" rendered="#{!gameBean.gameCompleted}">
+                        <div class="challenge-container">
+                            <h2 class="challenge-title">
+                                #{gameBean.currentChallenge.title}
+                                <span class="difficulty">
+                                    <ui:repeat value="#{gameBean.currentChallenge.difficulty}" var="i">
+                                        <i class="pi pi-star-fill"></i>
+                                    </ui:repeat>
+                                </span>
+                            </h2>
+
+                            <p class="challenge-description">#{gameBean.currentChallenge.description}</p>
+
+                            <p:panel styleClass="code-panel" rendered="#{not empty gameBean.currentChallenge.codeSnippet}">
+                                <pre class="code-snippet">#{gameBean.currentChallenge.codeSnippet}</pre>
+                            </p:panel>
+
+                            <div class="hint-container">
+                                <p:commandLink value="#{msg.hint}" 
+                                               onclick="PF('hintDialog').show();" 
+                                               styleClass="hint-link" />
+                            </div>
+
+                            <div class="answer-container">
+                                <p:inputTextarea value="#{gameBean.userAnswer}" 
+                                                 rows="4" 
+                                                 styleClass="answer-input" 
+                                                 placeholder="Your answer here..." />
+                            </div>
+
+                            <div class="actions-container">
+                                <p:commandButton value="#{msg.submit}" 
+                                                 action="#{gameBean.submitAnswer}" 
+                                                 update="@form :messages" 
+                                                 styleClass="ui-button-primary submit-btn" />
+
+                                <p:commandButton value="#{msg.next}" 
+                                                 action="#{gameBean.nextChallenge}" 
+                                                 update="@form :messages" 
+                                                 styleClass="ui-button-secondary next-btn" />
+                            </div>
+                        </div>
+                    </h:form>
+
+                    <h:form id="gameCompletedForm" rendered="#{gameBean.gameCompleted}">
+                        <div class="game-completed">
+                            <h2>#{msg.gameCompleted}</h2>
+                            <div class="final-score">
+                                <span class="final-score-label">#{msg.finalScore}: </span>
+                                <span class="final-score-value">#{gameBean.score}</span>
+                            </div>
+
+                            <div class="reset-container">
+                                <p:commandButton value="#{msg.reset}" 
+                                                 action="#{gameBean.resetGame}" 
+                                                 update="@form :messages" 
+                                                 styleClass="ui-button-primary reset-btn" />
+                            </div>
+                        </div>
+                    </h:form>
+
+                    <p:dialog header="#{msg.hint}" widgetVar="hintDialog" modal="true" resizable="false" responsive="true">
+                        <p class="hint-text">#{gameBean.currentChallenge.hint}</p>
+                    </p:dialog>
+
+                </div>
+            </ui:define>
+
+        </ui:composition>
+    </body>
+</html>

@@ -1,0 +1,114 @@
+<?xml version='1.0' encoding='UTF-8' ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
+      xmlns:h="http://xmlns.jcp.org/jsf/html"
+      xmlns:p="http://primefaces.org/ui"
+      xmlns:f="http://xmlns.jcp.org/jsf/core"
+      >
+
+    <h:head>
+        <f:loadBundle basename="messages" var="msg" />
+        <title>#{msg['hangman.page.title']}</title>
+
+    </h:head>
+    <h:body>
+        <ui:composition template="./template.xhtml">
+            <ui:define name="title">#{msg['hangman.page.title']}</ui:define>
+            <ui:define name="box">
+                <div class="hangman-container">
+                    <h:form id="gameForm" prependId="false">
+                        <div class="title-bar">
+                            <p:outputPanel>
+                                <h1>#{msg['hangman.game.title']}</h1> 
+                            </p:outputPanel>
+                        </div>
+
+                        <div class="score-display">
+                            <p:outputPanel>
+                                <span>#{msg['hangman.wins.label']}: </span>
+                                <h:outputText value="#{hangmanBean.wins}" styleClass="win-count" />
+                            </p:outputPanel>
+
+                            <p:outputPanel>
+                                <span>#{msg['hangman.losses.label']}: </span>
+                                <h:outputText value="#{hangmanBean.losses}" styleClass="loss-count" />
+                            </p:outputPanel>
+                        </div>
+
+                        <p:outputPanel styleClass="status-panel">
+                              <h:outputText value="#{msg['hangman.guesses.left']} #{hangmanBean.remainingGuesses}" styleClass="guesses-left" /> 
+                        </p:outputPanel>
+
+                        <p:panel styleClass="category-select-panel">
+                            <p:selectOneMenu value="#{hangmanBean.selectedCategory}">
+                                <f:selectItem itemLabel="#{msg['hangman.category.data_types']}" itemValue="data_types" /> <!-- Replaced "Data Types" -->
+                                <f:selectItem itemLabel="#{msg['hangman.category.keywords']}" itemValue="keywords" /> <!-- Replaced "Python Keywords" -->
+                                <f:selectItem itemLabel="#{msg['hangman.category.modules']}" itemValue="modules" /> <!-- Replaced "Python modules" -->
+                                <f:selectItem itemLabel="#{msg['hangman.category.functions']}" itemValue="functions" /> <!-- Replaced "Python Built-in Functions" -->
+                                <p:ajax update="@form" listener="#{hangmanBean.startNewGame}" />
+                            </p:selectOneMenu>
+                        </p:panel>
+
+                        <div class="hangman-display">
+                            <!-- Hangman Structure -->
+                            <h:panelGroup styleClass="hangman-post" rendered="#{hangmanBean.wrongGuesses >= 1}" />
+                            <h:panelGroup styleClass="hangman-beam" rendered="#{hangmanBean.wrongGuesses >= 2}" />
+                            <h:panelGroup styleClass="hangman-rope" rendered="#{hangmanBean.wrongGuesses >= 3}" />
+
+                            <!-- Hangman Face -->
+                            <h:panelGroup styleClass="hangman-face" rendered="#{hangmanBean.wrongGuesses >= 4}">
+                                <h:panelGroup styleClass="eye-left" />
+                                <h:panelGroup styleClass="eye-right" />
+                                <h:panelGroup styleClass="mouth #{hangmanBean.gameOver and !hangmanBean.gameWon ? 'sad' : ''}" />
+                            </h:panelGroup>
+
+                            <!-- Hangman Body Parts -->
+                            <h:panelGroup styleClass="hangman-body" rendered="#{hangmanBean.wrongGuesses >= 5}" />
+                            <h:panelGroup styleClass="hangman-arm left" rendered="#{hangmanBean.wrongGuesses >= 6}" />
+                            <h:panelGroup styleClass="hangman-arm right" rendered="#{hangmanBean.wrongGuesses >= 7}" />
+                            <h:panelGroup styleClass="hangman-leg left" rendered="#{hangmanBean.wrongGuesses >= 8}" />
+                            <h:panelGroup styleClass="hangman-leg right" rendered="#{hangmanBean.wrongGuesses >= 9}" />
+                        </div>
+
+                        <!-- Word Display -->
+                        <div class="word-display">
+                            <h:outputText value="#{hangmanBean.formattedWordDisplay}" style="font-family: monospace; font-size: 24px;" />
+                        </div>
+
+                        <!-- Game Status Messages -->
+                        <p:outputPanel rendered="#{hangmanBean.gameOver}">
+                            <p:outputPanel styleClass="win-message" rendered="#{hangmanBean.gameWon}">
+                                <h:outputText value="#{msg['hangman.win.message']}" />
+                            </p:outputPanel>
+
+                            <p:outputPanel styleClass="lose-message" rendered="#{!hangmanBean.gameWon}">
+                                <h:outputText value="#{msg['hangman.lose.message']} #{hangmanBean.currentWord}" />
+                            </p:outputPanel>
+                        </p:outputPanel>
+
+                        <!-- Keyboard -->
+                        <div class="keyboard">
+                            <ui:repeat value="#{hangmanBean.alphabet}" var="letter">
+                                <p:commandButton value="#{letter}" 
+                                                 styleClass="key-button #{hangmanBean.getLetterClass(letter)}"
+                                                 actionListener="#{hangmanBean.guessLetter(letter)}"
+                                                 update="@form"
+                                                 disabled="#{hangmanBean.isLetterGuessed(letter) or hangmanBean.gameOver}" />
+                            </ui:repeat>
+                        </div>
+
+                        <div class="game-controls">
+                            <p:commandButton value="#{msg['hangman.new.game']}" 
+                                             actionListener="#{hangmanBean.startNewGame}"
+                                             update="@form"
+                                             styleClass="ui-button-success" /> <!-- Replaced "New Game" -->
+                        </div>
+                    </h:form>
+                </div>
+            </ui:define>
+        </ui:composition>
+    </h:body>
+</html>
+
+

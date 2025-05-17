@@ -1,0 +1,78 @@
+<?xml version='1.0' encoding='UTF-8' ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
+      xmlns:h="http://xmlns.jcp.org/jsf/html"
+      xmlns:p="http://primefaces.org/ui"
+      xmlns:f="http://xmlns.jcp.org/jsf/core"
+      >
+
+    <h:head>
+        <f:loadBundle basename="messages" var="msg" />
+        <title>#{msg['memory.page.title']}</title>
+    </h:head>
+    <h:body>
+        <ui:composition template="./template.xhtml">
+            <ui:define name="title">#{msg['memory.title']}</ui:define>
+
+            <ui:define name="box">
+                <div class="game-container">
+                    <div class="header">
+                        <h1>#{msg['memory.header']}</h1>
+                        <p>#{msg['memory.description']}</p>
+                    </div>
+
+                    <h:form id="gameForm">
+                        <div class="difficulty-selector">
+                            <p:outputLabel for="difficultySelect" value="#{msg['memory.difficulty']}" />
+                            <p:selectOneButton id="difficultySelect" value="#{memoryGameBean.difficulty}">
+                                <f:selectItem itemLabel="#{msg['memory.difficulty.beginner']}" itemValue="BEGINNER" />
+                                <f:selectItem itemLabel="#{msg['memory.difficulty.intermediate']}" itemValue="INTERMEDIATE" />
+                                <p:ajax update="gameForm" listener="#{memoryGameBean.changeDifficulty}" />
+                            </p:selectOneButton>
+                        </div>
+
+                        <div class="game-stats">
+                            <div>#{msg['memory.moves']}: <h:outputText value="#{memoryGameBean.moves}" /></div>
+                            <div>#{msg['memory.matches']}: 
+                                <h:outputText value="#{memoryGameBean.matchedPairs}" /> / 
+                                <h:outputText value="#{memoryGameBean.totalPairs}" />
+                            </div>
+                            <div>#{msg['memory.time']}: <h:outputText value="#{memoryGameBean.elapsedTime}" /></div>
+                        </div>
+
+                        <div class="card-grid">
+                            <ui:repeat value="#{memoryGameBean.cards}" var="card" varStatus="status">
+                                <p:commandButton value="#{card.flipped or card.matched ? card.content : 'Python'}"
+                                                 actionListener="#{memoryGameBean.flipCard(status.index)}"
+                                                 update="gameForm"
+                                                 styleClass="game-card #{card.flipped ? 'flipped' : ''} #{card.matched ? 'matched' : ''}"
+                                                 disabled="#{card.matched or card.flipped}" />
+                            </ui:repeat>
+                        </div>
+
+                        <div class="game-controls">
+                            <p:commandButton value="#{msg['memory.newgame']}" 
+                                             action="#{memoryGameBean.startNewGame}" update="gameForm"
+                                             styleClass="ui-button-primary" />
+                        </div>
+
+                        <p:dialog header="#{msg['memory.dialog.header']}" widgetVar="gameCompleteDialog" modal="true" resizable="false">
+                            <p>
+                                <h:outputFormat value="#{msg['memory.dialog.text']}">
+                                    <f:param value="#{memoryGameBean.moves}" />
+                                    <f:param value="#{memoryGameBean.elapsedTime}" />
+                                </h:outputFormat>
+                            </p>
+                            <p:commandButton value="#{msg['memory.playagain']}" 
+                                             action="#{memoryGameBean.startNewGame}" update="gameForm"
+                                             oncomplete="PF('gameCompleteDialog').hide()" />
+                        </p:dialog>
+                    </h:form>
+                </div>
+            </ui:define>
+        </ui:composition>
+    </h:body>
+</html>
+
+
