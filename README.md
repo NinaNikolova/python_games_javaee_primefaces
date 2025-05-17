@@ -4,7 +4,7 @@ Project is a demo of Internationalization i18n - translated on Bulgarian and Eng
 
 o inetAndWww2025_ST_project_6MI3400545.zip 
 
-Студент: Нина Христова Николова, ф.н. 6MI3400545, (маг.) спец. Софтуерни технологии , имейл: ninahn@uni-sofia.bg;  дисциплина: Интернет технологии и уеб програмиране, 2024-2025, летен семестър,  доц. Милен Петров, milen.petrov@gmail.com
+дисциплина: Интернет технологии и уеб програмиране, 2024-2025, летен семестър
 
 
 Project is a demo of Internationalization i18n - translated on Bulgarian and English and PrimeFaces8.0;
